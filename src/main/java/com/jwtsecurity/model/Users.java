@@ -6,19 +6,19 @@ import jakarta.persistence.*;
 @Entity
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private String userName;
     private String emailId;
     private String password;
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -32,10 +34,10 @@ public class SecurityConfig {
                 .csrf(Customizer -> Customizer.disable())
 //                .authorizeHttpRequests(request -> request./*requestMatchers("/**").permitAll().*/anyRequest().authenticated()) // only authenticated person will be permited
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/users/create-user", "/api/v1/users/login")
-                        .permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/v1/users/createUser").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers( "/api/v1/users/login").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/v1/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .anyRequest().authenticated())// to free up authentication
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
@@ -84,4 +86,10 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
+
 }

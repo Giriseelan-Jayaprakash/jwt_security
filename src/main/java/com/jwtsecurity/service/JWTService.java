@@ -1,22 +1,25 @@
 package com.jwtsecurity.service;
 
 import com.jwtsecurity.model.Users;
+import com.jwtsecurity.util.UserValidation;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.nio.file.attribute.UserPrincipal;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+//import  com.jwtsecurity.util.UserValidation.isValidEmail;
 
 @Service
 public class JWTService {
@@ -26,16 +29,25 @@ public class JWTService {
 //    }
 
     // to generate token using jwts
+    @Autowired
+    private UserValidation userValidation;
 
     public String generateToken(Users user) {
+//        System.err.println(userValidation.isValidEmail(user.getEmailId()) + "  " + userValidation.isValidPassword(user.getPassword()));
+//        userValidation.areCredentialsValid(user.getEmailId(),user.getPassword());
+//            throw new IllegalArgumentException("Invalid EmailId or Password");
+//        }
+        if (user == null && user.getId() == null) {
+            throw new IllegalArgumentException("User or User ID is null. Cannot generate token.");
+        }
         Map<String, Object> claims = new HashMap<>();
-//        claims.put("email",user.getEmailId());
+        claims.put("emailId", user.getEmailId());
+        claims.put("name", user.getUserName());
         return Jwts
                 .builder()
                 .claims()
                 .add(claims)
-//                .subject(user.getId().toString())
-                .subject(user.getEmailId())
+                .subject(user.getId().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 600 * 60 * 30))
                 .and()
@@ -63,7 +75,7 @@ public class JWTService {
     public String extractUserName(String token) {
         // extract the username from jwt token
 //        System.err.println(" test .."+extractClaim(token, Claims::getSubject));
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, claims -> claims.get("emailId", String.class));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {

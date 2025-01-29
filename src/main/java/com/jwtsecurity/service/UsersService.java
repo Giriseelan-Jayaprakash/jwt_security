@@ -1,7 +1,12 @@
 package com.jwtsecurity.service;
 
+import com.jwtsecurity.dto.ResponseDTO;
+import com.jwtsecurity.dto.UserCreationDTO;
+import com.jwtsecurity.exception.ExceptionHandling;
+import com.jwtsecurity.model.UserPrincipal;
 import com.jwtsecurity.model.Users;
 import com.jwtsecurity.repository.UserRepository;
+import com.jwtsecurity.util.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,24 +22,43 @@ public class UsersService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTService jwtService;
+    @Autowired
+    private UserValidation userValidation;
 
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
 
-    public String createUser(final Users user) {
+    public UserCreationDTO createUser(final Users user)  {
+        if (!userValidation.isValidEmail(user.getEmailId())) {
+        throw new ExceptionHandling("Invalid Email format");
+    }
+        if (!userValidation.isValidPassword(user.getPassword())) {
+            throw new ExceptionHandling("Invalid Password format");
+        }
+        if (userRepository.existsByEmailId(user.getEmailId())) {
+            throw new ExceptionHandling("User Already exists");
+        }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-//        System.err.println(userRepository.existsByEmailId(user.getEmailId()));
-        if (userRepository.existsByEmailId(user.getEmailId())) throw new IllegalArgumentException("User Already exits");
         userRepository.save(user);
-        return "Created Successfully";
+
+        return new UserCreationDTO("Created Successfully",user.getId(),user.getUserName(),user.getEmailId(),user.getAuthority());
     }
 
-    public String verify(final Users user) {
-        Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmailId(), user.getPassword()));
-        if (authentication.isAuthenticated())
-//            return "Login Successfull";
-//            return jwtService.generateToken(); // for hardcoding token
-            return jwtService.generateToken(user);
-        return "Invalid Login";
+    public ResponseDTO verify(final Users user) {
+        if (!userValidation.isValidEmail(user.getEmailId()) || !userValidation.isValidPassword(user.getPassword())) {
+            throw new ExceptionHandling("Invalid Email or Password format");
+        }
+        Users storedUser = userRepository.findByEmailId(user.getEmailId());
+
+        if (storedUser == null) {
+            return new ResponseDTO("User not found", null);
+        }
+        if (bCryptPasswordEncoder.matches(user.getPassword(), storedUser.getPassword())) {
+            String token = jwtService.generateToken(storedUser);  // Assume this method generates the token
+            return new ResponseDTO("Login Successful",token);
+        } else {
+            return new ResponseDTO("Invalid login credentials",null);
+        }
+
     }
+
 }

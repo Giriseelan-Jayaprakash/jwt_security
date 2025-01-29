@@ -2,6 +2,7 @@ package com.jwtsecurity.controller;
 
 import com.jwtsecurity.model.Student;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ public class StudentController {
         return student;
     }
 
+//    @PreAuthorize(("ADMIN"))
     @PostMapping("/create-student")
     public Student createStudent(@RequestBody Student students) {
         student.add(students);

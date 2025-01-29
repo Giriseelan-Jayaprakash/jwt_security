@@ -8,27 +8,28 @@ import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
-    private Users user;
+    private Users users;
 
-    public UserPrincipal(Users user) {
-        this.user = user;
+    public UserPrincipal(Users users) {
+        this.users = users;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 //        return Collections.singleton(new SimpleGrantedAuthority("USER"));
-        return List.of(() -> user.getAuthority().name());
+//        return List.of(() -> users.getAuthority().name());
+        return List.of(() -> users.getAuthority().name());
     }
 
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return users.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmailId();
+        return users.getEmailId();
     }
 
     @Override
@@ -49,5 +50,8 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    public Users getUsers() {
+        return users;
     }
 }
