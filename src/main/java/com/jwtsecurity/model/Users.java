@@ -14,6 +14,14 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
+//    public Users(String id, String userName, String emailId, String password, Authority authority) {
+//        this.id = id;
+//        this.userName = userName;
+//        this.emailId = emailId;
+//        this.password = password;
+//        this.authority = authority;
+//    }
+
     public String getId() {
         return id;
     }

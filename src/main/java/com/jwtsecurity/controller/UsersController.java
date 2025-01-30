@@ -1,7 +1,6 @@
 package com.jwtsecurity.controller;
 
 import com.jwtsecurity.dto.ResponseDTO;
-import com.jwtsecurity.dto.UserCreationDTO;
 import com.jwtsecurity.model.Users;
 import com.jwtsecurity.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ public class UsersController {
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/create-user")
-    public UserCreationDTO createUser(@RequestBody final Users user) {
+    public ResponseDTO createUser(@RequestBody final Users user) {
         return usersService.createUser(user);
     }
 

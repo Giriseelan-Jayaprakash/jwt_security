@@ -1,12 +1,16 @@
 package com.jwtsecurity.dto;
 
 public class ResponseDTO {
+    private Integer statusCode;
     private String message;
-    private String token;
+    private Object data;
 
-    public ResponseDTO(String message, String token) {
-        this.message = message;
-        this.token = token;
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getMessage() {
@@ -17,12 +21,12 @@ public class ResponseDTO {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
+    public Object getData() {
+        return data;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setData(Object data) {
+        this.data = data;
     }
 }
 
